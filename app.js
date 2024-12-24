@@ -1,53 +1,65 @@
-async function fetchWeather() {
-  const city = document.getElementById("city");
-  const weatherInfo = document.getElementById("weatherInfo");
-  const temperature = document.getElementById("temperature");
-  const description = document.getElementById("description");
-  const humidity = document.getElementById("humidity");
-  const wind = document.getElementById("wind");
-  const dynamicBg = document.getElementById("dynamicBg");
+const apiKey = "392fc470c1ac8b42b2f40951a9a96cc4";
 
-  if (!city.value) {
-    alert("Please enter a city name");
+async function fetchWeather() {
+  const city = document.getElementById('city').value.trim();
+  const weatherDetails = document.getElementById('weather-details');
+  const errorMessage = document.getElementById('error-message');
+  const app = document.getElementById('app');
+
+  if (!city) {
+    errorMessage.textContent = "Please enter a city name.";
+    errorMessage.classList.remove('hidden');
+    weatherDetails.classList.add('hidden');
     return;
   }
 
   try {
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city.value}&appid=392fc470c1ac8b42b2f40951a9a96cc4&units=metric`
-    );
-
+    const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
     const data = await response.json();
 
-    if (data.cod === "404") {
-      alert("City not found!");
-      return;
+    if (data.cod !== 200) {
+      throw new Error(data.message);
     }
 
-    // Update UI with weather data
-    temperature.textContent = `${Math.round(data.main.temp)}°C`;
-    description.textContent = data.weather[0].description;
-    humidity.textContent = `Humidity: ${data.main.humidity}%`;
-    wind.textContent = `Wind Speed: ${data.wind.speed} km/h`;
+    document.getElementById('city-name').textContent = data.name;
+    document.getElementById('temperature').textContent = `${data.main.temp}°C`;
+    document.getElementById('description').textContent = data.weather[0].description;
+    document.getElementById('humidity').textContent = `Humidity: ${data.main.humidity}%`;
+    document.getElementById('wind').textContent = `Wind: ${data.wind.speed} m/s`;
 
-    // Update background dynamically
-    const weatherMain = data.weather[0].main.toLowerCase();
+    const weatherIcon = document.getElementById('weather-icon');
+    const weatherCondition = data.weather[0].main.toLowerCase();
 
-    if (weatherMain.includes("cloud")) {
-      dynamicBg.style.background =
-        "url('https://images.unsplash.com/photo-1498085245356-7c3cda3b412f?q=80&w=1567&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center/cover";
-    } else if (weatherMain.includes("rain")) {
-      dynamicBg.style.background =
-        "url('https://images.unsplash.com/photo-1519692933481-e162a57d6721?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center/cover";
-    } else if (weatherMain.includes("clear")) {
-      dynamicBg.style.background =
-        "url('https://images.unsplash.com/photo-1496765111150-918497b59c9e?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center/cover";
-    } else {
-      dynamicBg.style.background =
-        "url('https://images.unsplash.com/photo-1561553590-267fc716698a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fDE2MDB4OTAwJTJGJTNGd2VhdGhlcnxlbnwwfHwwfHx8MA%3D%3D') no-repeat center center/cover";
+    let backgroundClass = "bg-gray-800";
+    let iconSrc = "";
+
+    if (weatherCondition.includes("clear")) {
+      backgroundClass = "bg-yellow-400";
+      iconSrc = "https://cdn-icons-png.flaticon.com/512/869/869869.png"; // Sun icon
+    } else if (weatherCondition.includes("cloud")) {
+      backgroundClass = "bg-gray-600";
+      iconSrc = "https://cdn-icons-png.flaticon.com/512/1163/1163624.png"; // Cloud icon
+    } else if (weatherCondition.includes("rain")) {
+      backgroundClass = "bg-blue-900";
+      iconSrc = "https://cdn-icons-png.flaticon.com/512/1146/1146858.png"; // Rain icon
+    } else if (weatherCondition.includes("snow")) {
+      backgroundClass = "bg-blue-300";
+      iconSrc = "https://cdn-icons-png.flaticon.com/512/642/642102.png"; // Snow icon
+    } else if (weatherCondition.includes("mist") || weatherCondition.includes("fog")) {
+      backgroundClass = "bg-gray-500";
+      iconSrc = "https://cdn-icons-png.flaticon.com/512/4005/4005901.png"; // Fog icon
     }
+
+    app.className = `${backgroundClass} text-white font-sans transition-all duration-500`;
+    weatherIcon.src = iconSrc;
+
+    errorMessage.classList.add('hidden');
+    weatherDetails.classList.remove('hidden');
   } catch (error) {
-    console.error("Error fetching weather data:", error);
-    alert("Unable to fetch weather data. Please try again.");
+    errorMessage.textContent = error.message;
+    errorMessage.classList.remove('hidden');
+    weatherDetails.classList.add('hidden');
   }
+
+  document.getElementById('city').value = '';
 }
