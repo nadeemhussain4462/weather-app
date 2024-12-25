@@ -5,10 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weather App</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-size: cover;
+      background-position: center;
+      transition: background-image 0.5s ease-in-out;
+    }
+  </style>
 </head>
-<body id="app" class="bg-gray-800 text-white font-sans transition-all duration-500">
+<body id="app" class="text-white font-sans transition-all duration-500">
   <div class="min-h-screen flex flex-col items-center justify-center">
-    <div class="w-full max-w-4xl mx-auto bg-gray-900 rounded-xl shadow-lg p-6">
+    <div class="w-full max-w-4xl mx-auto bg-gray-900 bg-opacity-70 rounded-xl shadow-lg p-6">
       <!-- Header -->
       <div class="text-center">
         <h1 class="text-3xl font-bold">Weather Dashboard</h1>
@@ -56,6 +63,17 @@
   <script>
     const apiKey = "392fc470c1ac8b42b2f40951a9a96cc4";
 
+    const backgrounds = {
+      clear: "url('https://plus.unsplash.com/premium_photo-1723579336014-d2d93cf3c71d?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+      clouds: "url('https://plus.unsplash.com/premium_photo-1667143326260-6fcff17dfd07?q=80&w=1376&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+      rain: "url('https://source.unsplash.com/1600x900/?rain')",
+      snow: "url('https://plus.unsplash.com/premium_photo-1710248799611-96aa6db855b9?q=80&w=1506&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+      mist: "url('https://plus.unsplash.com/premium_photo-1710248799611-96aa6db855b9?q=80&w=1506&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+      fog: "url('https://plus.unsplash.com/premium_photo-1710248799611-96aa6db855b9?q=80&w=1506&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+      thunderstorm: "url('https://plus.unsplash.com/premium_photo-1710248799611-96aa6db855b9?q=80&w=1506&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+      drizzle: "url('https://images.unsplash.com/photo-1505404919723-002ecad81b92?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+    };
+
     async function fetchWeather() {
       const city = document.getElementById('city').value.trim();
       const weatherDetails = document.getElementById('weather-details');
@@ -86,27 +104,33 @@
         const weatherIcon = document.getElementById('weather-icon');
         const weatherCondition = data.weather[0].main.toLowerCase();
 
-        let backgroundClass = "bg-gray-800";
+        let background = backgrounds.clear;
         let iconSrc = "";
 
         if (weatherCondition.includes("clear")) {
-          backgroundClass = "bg-yellow-400";
+          background = backgrounds.clear;
           iconSrc = "https://cdn-icons-png.flaticon.com/512/869/869869.png"; // Sun icon
         } else if (weatherCondition.includes("cloud")) {
-          backgroundClass = "bg-gray-600";
+          background = backgrounds.clouds;
           iconSrc = "https://cdn-icons-png.flaticon.com/512/1163/1163624.png"; // Cloud icon
         } else if (weatherCondition.includes("rain")) {
-          backgroundClass = "bg-blue-900";
+          background = backgrounds.rain;
           iconSrc = "https://cdn-icons-png.flaticon.com/512/1146/1146858.png"; // Rain icon
         } else if (weatherCondition.includes("snow")) {
-          backgroundClass = "bg-blue-300";
+          background = backgrounds.snow;
           iconSrc = "https://cdn-icons-png.flaticon.com/512/642/642102.png"; // Snow icon
         } else if (weatherCondition.includes("mist") || weatherCondition.includes("fog")) {
-          backgroundClass = "bg-gray-500";
+          background = backgrounds.mist;
           iconSrc = "https://cdn-icons-png.flaticon.com/512/4005/4005901.png"; // Fog icon
+        } else if (weatherCondition.includes("thunderstorm")) {
+          background = backgrounds.thunderstorm;
+          iconSrc = "https://cdn-icons-png.flaticon.com/512/1146/1146860.png"; // Thunderstorm icon
+        } else if (weatherCondition.includes("drizzle")) {
+          background = backgrounds.drizzle;
+          iconSrc = "https://cdn-icons-png.flaticon.com/512/1146/1146865.png"; // Drizzle icon
         }
 
-        app.className = `${backgroundClass} text-white font-sans transition-all duration-500`;
+        app.style.backgroundImage = background;
         weatherIcon.src = iconSrc;
 
         errorMessage.classList.add('hidden');
